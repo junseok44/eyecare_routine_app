@@ -1,42 +1,65 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
 import electronReload from "electron-reload";
-
-let win: BrowserWindow | null = null;
+import { ELECTRON_EVENTS } from "./constants";
+import { createMainWindow, hideWindow, showAndFocusWindow } from "./services";
 
 electronReload(path.join(__dirname), {
   electron: path.join(__dirname, "../node_modules/.bin/electron"),
   awaitWriteFinish: true,
 });
 
-function createWindow() {
-  win = new BrowserWindow({
-    width: 1200,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      nodeIntegration: false,
-      contextIsolation: true,
-    },
-  });
+let mainWindow: BrowserWindow | null = null;
+let intervalId: NodeJS.Timeout | null = null;
+let INTERVAL = 10 * 60000;
 
-  if (process.env.NODE_ENV === "production") {
-    win.loadFile(path.join(__dirname, "renderer/index.html"));
-  } else {
-    win.loadURL("http://localhost:3000");
+app.whenReady().then(() => {
+  mainWindow = createMainWindow(intervalId);
+});
+
+ipcMain.on(ELECTRON_EVENTS.START_TIMER, (_event, interval: number) => {
+  if (intervalId) clearInterval(intervalId);
+
+  INTERVAL = interval;
+
+  intervalId = setInterval(() => {
+    if (mainWindow) {
+      showAndFocusWindow(mainWindow);
+    }
+  }, INTERVAL);
+
+  if (mainWindow) {
+    hideWindow(mainWindow);
+  }
+});
+
+ipcMain.on(ELECTRON_EVENTS.SET_TIMER_AGAIN, () => {
+  if (mainWindow) {
+    mainWindow.hide();
   }
 
-  win.on("closed", () => {
-    win = null;
-  });
-}
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
 
-app.whenReady().then(createWindow);
+  intervalId = setInterval(() => {
+    if (mainWindow) {
+      showAndFocusWindow(mainWindow);
+    }
+  }, INTERVAL);
+});
 
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+ipcMain.on(ELECTRON_EVENTS.QUIT_APP, () => {
+  app.quit();
 });
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
+});
+
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    mainWindow = createMainWindow(intervalId);
+  }
 });
