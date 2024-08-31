@@ -5,64 +5,75 @@ import { exercises } from "../constants";
 const TIME_AFTER_COMPLETE = 3000;
 const COUNTDOWN_INTERVAL = 1000;
 
-// 이 페이지의 기능은. window.show 이벤트가 오면, 운동을 시작하고, 카운트다운을 시작하는 것.
-
 export const ExerciseScreen: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [remainingTime, setRemainingTime] = useState(exercises[0].duration);
   const [isExerciseComplete, setIsExerciseComplete] = useState(false);
-  const [countdownId, setCountdownId] = useState<NodeJS.Timeout | null>(null);
-  const [isExerciseRunning, setIsExerciseRunning] = useState(false);
 
-  const countdownIdRef = useRef<NodeJS.Timeout | null>(countdownId);
-  const isExerciseRunningRef = useRef(isExerciseRunning);
+  const countdownIdRef = useRef<NodeJS.Timeout | null>(null);
+  const isExerciseRunningRef = useRef(false);
 
-  const onCompleted = () => {
+  useEffect(() => {
+    window.electron.on(ELECTRON_EVENTS.SHOW_WINDOW, handleShowWindow);
+  }, []);
+
+  const resetCountdown = () => {
+    if (countdownIdRef.current) {
+      clearInterval(countdownIdRef.current);
+    }
+  };
+
+  const onCompleteExercise = () => {
     setIsExerciseComplete(true);
     setTimeout(() => {
+      resetState({
+        isExerciseRunning: false,
+      });
       window.electron.send(ELECTRON_EVENTS.SET_TIMER_AGAIN);
-      initializeTimeAndState();
-      setIsExerciseRunning(false);
-      isExerciseRunningRef.current = false;
     }, TIME_AFTER_COMPLETE);
   };
 
-  const initializeTimeAndState = () => {
-    if (countdownId) clearInterval(countdownId);
+  const resetState = ({
+    isExerciseRunning,
+  }: {
+    isExerciseRunning: boolean;
+  }) => {
+    isExerciseRunningRef.current = isExerciseRunning;
+    resetCountdown();
     setCurrentStep(0);
     setRemainingTime(exercises[0].duration);
     setIsExerciseComplete(false);
   };
 
   const startCountdown = () => {
-    const countdown = setInterval(() => {
+    // if (countdownIdRef.current) return;
+
+    countdownIdRef.current = setInterval(() => {
       setRemainingTime((time) => {
-        if (time > 1) {
-          return time - 1;
-        } else {
-          clearInterval(countdown);
-          setCurrentStep((prevStep) => {
-            const nextStep = prevStep + 1;
-            if (nextStep < exercises.length) {
-              setRemainingTime(exercises[nextStep].duration);
-              startCountdown();
-            } else {
-              onCompleted();
-            }
-            return nextStep;
-          });
-          return 0;
-        }
+        if (time > 1) return time - 1;
+
+        resetCountdown();
+
+        setCurrentStep((prevStep) => {
+          const nextStep = prevStep + 1;
+
+          if (nextStep < exercises.length) {
+            setRemainingTime(exercises[nextStep].duration);
+            startCountdown();
+          } else {
+            onCompleteExercise();
+          }
+          return nextStep;
+        });
+        return 0;
       });
     }, COUNTDOWN_INTERVAL);
-
-    setCountdownId(countdown);
   };
 
   const startExercise = () => {
-    setIsExerciseRunning(true);
-    isExerciseRunningRef.current = true;
-    initializeTimeAndState();
+    resetState({
+      isExerciseRunning: true,
+    });
     startCountdown();
   };
 
@@ -72,21 +83,17 @@ export const ExerciseScreen: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    window.electron.on(ELECTRON_EVENTS.SHOW_WINDOW, handleShowWindow);
-  }, []);
-
   const handleNextInterval = () => {
-    initializeTimeAndState();
-    setIsExerciseRunning(false);
-    isExerciseRunningRef.current = false;
+    resetState({
+      isExerciseRunning: false,
+    });
     window.electron.send(ELECTRON_EVENTS.SET_TIMER_AGAIN);
   };
 
   const handleQuit = () => {
-    if (countdownId) clearInterval(countdownId);
-    setIsExerciseRunning(false);
-    isExerciseRunningRef.current = false;
+    resetState({
+      isExerciseRunning: false,
+    });
     window.electron.send(ELECTRON_EVENTS.QUIT_APP);
   };
 

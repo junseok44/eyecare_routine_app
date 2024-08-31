@@ -7,6 +7,6 @@
     "outDir": "./dist",
     "jsx": "react"
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "setupTests.ts"],
   "exclude": ["node_modules"]
 }
