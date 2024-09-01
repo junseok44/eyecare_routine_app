@@ -13,6 +13,7 @@
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
+    "@types/auto-launch": "^5.0.5",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.5",
@@ -28,6 +29,7 @@
     "vitest": "^2.0.5"
   },
   "dependencies": {
+    "auto-launch": "^5.0.6",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.41",
     "react": "^18.3.1",
