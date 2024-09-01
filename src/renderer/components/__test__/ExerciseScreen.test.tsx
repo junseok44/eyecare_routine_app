@@ -1,11 +1,11 @@
-// __tests__/ExerciseScreen.test.tsx
 import { act, render, screen } from "@testing-library/react";
 import React from "react";
-import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ELECTRON_EVENTS } from "../../../constants";
 import { ExerciseScreen } from "../ExerciseScreen";
 
-vi.mock(import("../../constants"), () => {
+// exercises 모듈 모킹
+vi.mock("../../constants", () => {
   return {
     exercises: [
       { text: "첫 번째 운동", duration: 15 },
@@ -17,11 +17,17 @@ vi.mock(import("../../constants"), () => {
 describe("ExerciseScreen 컴포넌트", () => {
   let sendSpy: ReturnType<typeof vi.spyOn>;
   let onSpy: ReturnType<typeof vi.spyOn>;
+  let audioPlaySpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     // Electron 메서드에 스파이 설정
     sendSpy = vi.spyOn(window.electron, "send").mockImplementation(vi.fn());
     onSpy = vi.spyOn(window.electron, "on").mockImplementation(vi.fn());
+
+    // HTMLAudioElement의 play 메서드 모킹
+    audioPlaySpy = vi
+      .spyOn(window.HTMLMediaElement.prototype, "play")
+      .mockImplementation(() => Promise.resolve());
   });
 
   afterEach(() => {
@@ -51,6 +57,9 @@ describe("ExerciseScreen 컴포넌트", () => {
     expect(screen.getByText(/두 번째 운동/)).toBeInTheDocument();
     expect(screen.getByText(/15초 남음/)).toBeInTheDocument();
 
+    // 오디오 재생 확인
+    expect(audioPlaySpy).toHaveBeenCalledTimes(1); // 첫 번째 운동 완료 후 오디오 재생 확인
+
     // 운동이 끝나기 전 경과시간을 시뮬레이션 (10초)
     act(() => {
       vi.advanceTimersByTime(10000); // 10초 경과
@@ -64,8 +73,10 @@ describe("ExerciseScreen 컴포넌트", () => {
     });
 
     // 운동 완료 후 화면 확인
-
     expect(screen.getByText(/운동 완료!/)).toBeInTheDocument();
+
+    // 운동 완료 후 오디오 재생 확인
+    expect(audioPlaySpy).toHaveBeenCalledTimes(2); // 운동 완료 시 두 번째 오디오 재생 확인
 
     act(() => {
       vi.advanceTimersByTime(4000);

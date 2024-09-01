@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ELECTRON_EVENTS } from "../../constants";
 import { exercises } from "../constants";
+import bellSound from "../assets/bell.mp3";
 
 const TIME_AFTER_COMPLETE = 3000;
 const COUNTDOWN_INTERVAL = 1000;
-const nextStepAudio = new Audio("/assets/bell.mp3");
+const nextStepAudio = new Audio(bellSound);
+
+nextStepAudio.volume = 0.3;
 
 export const ExerciseScreen: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -26,6 +29,7 @@ export const ExerciseScreen: React.FC = () => {
 
   const onCompleteExercise = () => {
     setIsExerciseComplete(true);
+    nextStepAudio.play();
     setTimeout(() => {
       resetState({
         isExerciseRunning: false,
