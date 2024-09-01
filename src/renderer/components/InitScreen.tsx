@@ -32,7 +32,7 @@ export const InitScreen: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-        눈 가속노화 방지기! 🚀
+        눈운동 리마인더 🚀
       </h1>
 
       <div className="slider-container mb-6 w-3/4 md:w-1/2">

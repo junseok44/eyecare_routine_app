@@ -4,6 +4,7 @@ import { exercises } from "../constants";
 
 const TIME_AFTER_COMPLETE = 3000;
 const COUNTDOWN_INTERVAL = 1000;
+const nextStepAudio = new Audio("/assets/bell.mp3");
 
 export const ExerciseScreen: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -33,6 +34,23 @@ export const ExerciseScreen: React.FC = () => {
     }, TIME_AFTER_COMPLETE);
   };
 
+  const onNextStep = () => {
+    resetCountdown();
+
+    setCurrentStep((prevStep) => {
+      const nextStep = prevStep + 1;
+
+      if (nextStep < exercises.length) {
+        setRemainingTime(exercises[nextStep].duration);
+        nextStepAudio.play();
+        startCountdown();
+      } else {
+        onCompleteExercise();
+      }
+      return nextStep;
+    });
+  };
+
   const resetState = ({
     isExerciseRunning,
   }: {
@@ -46,25 +64,12 @@ export const ExerciseScreen: React.FC = () => {
   };
 
   const startCountdown = () => {
-    // if (countdownIdRef.current) return;
-
     countdownIdRef.current = setInterval(() => {
       setRemainingTime((time) => {
         if (time > 1) return time - 1;
 
-        resetCountdown();
+        onNextStep();
 
-        setCurrentStep((prevStep) => {
-          const nextStep = prevStep + 1;
-
-          if (nextStep < exercises.length) {
-            setRemainingTime(exercises[nextStep].duration);
-            startCountdown();
-          } else {
-            onCompleteExercise();
-          }
-          return nextStep;
-        });
         return 0;
       });
     }, COUNTDOWN_INTERVAL);
