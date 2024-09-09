@@ -7,7 +7,7 @@ const TIME_AFTER_COMPLETE = 3000;
 const COUNTDOWN_INTERVAL = 1000;
 const nextStepAudio = new Audio(bellSound);
 
-nextStepAudio.volume = 0.3;
+nextStepAudio.volume = 0.7;
 
 export const ExerciseScreen: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);

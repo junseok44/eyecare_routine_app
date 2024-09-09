@@ -20,11 +20,14 @@ export const createMainWindow = (intervalId: NodeJS.Timeout | null) => {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
     },
   });
 
   if (process.env.NODE_ENV === "production") {
-    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+    const filePath = path.join(__dirname, "./renderer/index.html");
+
+    mainWindow.loadFile(filePath);
   } else {
     mainWindow.loadURL("http://localhost:3001");
   }

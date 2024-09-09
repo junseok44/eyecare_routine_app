@@ -8,5 +8,5 @@
     "jsx": "react"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "setupTests.ts", "src/**/*.d.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "src/renderer", "src/renderer/**/*"]
 }
