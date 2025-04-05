@@ -9,47 +9,7 @@
     "dev:electron": "tsc --watch & electron .",
     "vite": "vite",
     "test": "vitest --config ./src/renderer/vitest.config.ts",
-    "deploy": "npm run build && cross-env NODE_ENV=production electron-builder --mac"
-  },
-  "build": {
-    "appId": "com.example.eyecareapp",
-    "extraResources": [
-      ".env"
-    ],
-    "productName": "EyeRoutineEO",
-    "files": [
-      "dist/**/*",
-      "node_modules/**/*"
-    ],
-    "directories": {
-      "output": "build"
-    },
-    "mac": {
-      "target": [
-        "dmg"
-      ],
-      "category": "public.app-category.healthcare-fitness"
-    },
-    "dmg": {
-      "iconSize": 80,
-      "contents": [
-        {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 150,
-          "type": "file"
-        }
-      ],
-      "window": {
-        "width": 540,
-        "height": 380
-      }
-    }
+    "deploy": "npm run build && cross-env NODE_ENV=production electron-builder --mac --config electron-builder.config.js"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.5.0",
@@ -60,6 +20,7 @@
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
+    "cross-var": "^1.1.0",
     "electron": "^24.0.0",
     "electron-builder": "^24.13.3",
     "electron-reload": "^2.0.0-alpha.1",

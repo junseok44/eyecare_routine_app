@@ -6,7 +6,7 @@ const maxIntervalMinutes = 180;
 const minIntervalMinutes = 1;
 
 export const InitScreen: React.FC = () => {
-  const [intervalValue, setIntervalValue] = useState(10);
+  const [intervalValue, setIntervalValue] = useState(90);
   const [isMinutes, setIsMinutes] = useState(true); // 체크박스 상태를 위한 상태값 추가
   const navigate = useNavigate();
 

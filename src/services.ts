@@ -20,6 +20,7 @@ export const createMainWindow = (intervalId: NodeJS.Timeout | null) => {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
+      webviewTag: false,
       sandbox: true,
     },
   });
